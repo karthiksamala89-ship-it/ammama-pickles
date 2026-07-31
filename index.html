@@ -70,36 +70,80 @@
             font-weight: bold;
             margin: 15px 0;
         }
+        .btn-buynow {
+            display: block;
+            width: 100%;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-buynow:hover {
+            background-color: #e68a00;
+        }
+        
+        /* Pop-up Modal Box */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.6); 
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 25px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close-btn:hover {
+            color: black;
+        }
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 15px auto;
+            border: 2px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        .upi-details {
+            background: #f1f8e9;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 15px;
+        }
         .btn-whatsapp {
             display: block;
             background-color: #25D366;
             color: white;
             text-decoration: none;
-            padding: 12px 15px;
+            padding: 10px;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 16px;
-        }
-        .btn-whatsapp:hover {
-            background-color: #1ebc57;
-        }
-        .payment-info {
-            background: #fff3cd;
-            border: 2px solid #ffeeba;
-            padding: 25px;
-            border-radius: 12px;
-            margin-top: 40px;
-            text-align: center;
-        }
-        .payment-info h2 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        .phone-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #b30000;
-            margin: 10px 0;
+            margin-top: 15px;
         }
         footer {
             text-align: center;
@@ -132,7 +176,7 @@
                     <option value="2500">5 Kg - ₹2,500</option>
                 </select>
                 <div class="price-display">ధర: ₹<span id="chicken-price">500</span></div>
-                <a id="chicken-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg చికెన్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+                <button class="btn-buynow" onclick="openPayment('చికెన్ పచ్చడి', 'chicken')">⚡ Buy Now (ఇప్పుడే కొనండి)</button>
             </div>
 
             <!-- మటన్ పచ్చడి -->
@@ -146,7 +190,7 @@
                     <option value="2500">5 Kg - ₹2,500</option>
                 </select>
                 <div class="price-display">ధర: ₹<span id="mutton-price">500</span></div>
-                <a id="mutton-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg మటన్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+                <button class="btn-buynow" onclick="openPayment('మటన్ పచ్చడి', 'mutton')">⚡ Buy Now (ఇప్పుడే కొనండి)</button>
             </div>
 
             <!-- ఫిష్ పచ్చడి -->
@@ -160,25 +204,36 @@
                     <option value="2500">5 Kg - ₹2,500</option>
                 </select>
                 <div class="price-display">ధర: ₹<span id="fish-price">500</span></div>
-                <a id="fish-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg ఫిష్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+                <button class="btn-buynow" onclick="openPayment('ఫిష్ పచ్చడి', 'fish')">⚡ Buy Now (ఇప్పుడే కొనండి)</button>
             </div>
         </div>
+    </div>
 
-        <!-- పేమెంట్ మరియు కాంటాక్ట్ సమాచారం -->
-        <div class="payment-info">
-            <h2>ఆర్డర్ & పేమెంట్ వివరాలు</h2>
-            <p>ఏదైనా సమాచారం లేదా ఇంక్వైరీస్ కోసం ఈ క్రింది నంబరుకు సంప్రదించండి:</p>
-            <div class="phone-number">📞 8074474285</div>
+    <!-- Payment Modal (Pop-up Box) -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePayment()">&times;</span>
+            <h3 id="modal-title" style="color: #b30000; margin-bottom: 10px;">పేమెంట్ చేయండి</h3>
+            <p id="modal-item" style="font-size: 16px; font-weight: bold;"></p>
+            <h2 id="modal-amount" style="color: #2e7d32; margin: 10px 0;"></h2>
             
-            <hr style="margin: 15px 0;">
+            <p style="font-size: 14px; color: #666;">PhonePe, GPay, Paytm ద్వారా QR స్కాన్ చేయండి:</p>
             
-            <p><b>PhonePe లేదా Google Pay పేమెంట్ నంబర్:</b></p>
-            <div class="phone-number">📱 8074474285</div>
-            <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">
-                ⚠️ గమనిక: డబ్బులు పంపిన తర్వాత స్క్రీన్‌షాట్ తీసి క్రింది బటన్ నొక్కి WhatsApp కి పంపండి.
+            <!-- Dynamic QR Code -->
+            <img id="qr-image" class="qr-code" src="" alt="UPI QR Code">
+            
+            <div class="upi-details">
+                <p><b>UPI ID:</b> <span id="upi-id-display">8074742850@ybl</span></p>
+                <p><b>PhonePe / GPay:</b> 8074742850</p>
+            </div>
+
+            <p style="font-size: 12px; color: #d9534f; margin-top: 5px;">
+                ⚠️ పేమెంట్ పూర్తయ్యాక స్క్రీన్‌షాట్ తీసి క్రింది బటన్ క్లిక్ చేసి పంపండి.
             </p>
-            <br>
-            <a href="https://wa.me/918074474285?text=హలో, నేను అమ్మమ్మ పచ్చళ్ళు కోసం పేమెంట్ చేశాను. స్క్రీన్‌షాట్ ఇక్కడ పంపుతున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో స్క్రీన్‌షాట్ పంపండి</a>
+
+            <a id="whatsapp-confirm-btn" href="#" class="btn-whatsapp" target="_blank">
+                📱 పేమెంట్ స్క్రీన్‌షాట్ పంపండి
+            </a>
         </div>
     </div>
 
@@ -187,20 +242,50 @@
     </footer>
 
     <script>
+        // మీ UPI ID ఇక్కడ సెట్ చేయబడింది
+        var MY_UPI_ID = "8074742850@ybl"; 
+        var MY_NAME = "Ammamma Pickles";
+
         function updatePrice(item) {
             var select = document.getElementById(item + '-qty');
             var priceDisplay = document.getElementById(item + '-price');
-            var btn = document.getElementById(item + '-btn');
-            
+            priceDisplay.innerText = select.value;
+        }
+
+        function openPayment(itemName, itemKey) {
+            var select = document.getElementById(itemKey + '-qty');
             var price = select.value;
             var text = select.options[select.selectedIndex].text;
             var qtyText = text.split('-')[0].trim();
+
+            document.getElementById('modal-title').innerText = "ఆర్డర్ వివరాలు";
+            document.getElementById('modal-item').innerText = itemName + " (" + qtyText + ")";
+            document.getElementById('modal-amount').innerText = "చెల్లించాల్సిన మొత్తం: ₹" + price;
+            document.getElementById('upi-id-display').innerText = MY_UPI_ID;
+
+            // ఆటోమేటిక్ గా అమౌంట్ తో QR Code జనరేట్ అవుతుంది
+            var upiUrl = "upi://pay?pa=" + MY_UPI_ID + "&pn=" + encodeURIComponent(MY_NAME) + "&am=" + price + "&cu=INR";
+            var qrApi = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(upiUrl);
             
-            priceDisplay.innerText = price;
-            
-            var itemName = item === 'chicken' ? 'చికెన్ పచ్చడి' : (item === 'mutton' ? 'మటన్ పచ్చడి' : 'ఫిష్ పచ్చడి');
-            
-            btn.href = "https://wa.me/918074474285?text=" + encodeURIComponent("హలో, నేను " + qtyText + " " + itemName + " (₹" + price + ") ఆర్డర్ చేయాలనుకుంటున్నాను.");
+            document.getElementById('qr-image').src = qrApi;
+
+            // WhatsApp లింక్ తయారు చేయడం
+            var waMessage = "హలో, నేను " + qtyText + " " + itemName + " కోసం ₹" + price + " పేమెంట్ చేయడానికి సిద్ధంగా ఉన్నాను. స్క్రీన్‌షాట్ ఇక్కడ షేర్ చేస్తున్నాను.";
+            document.getElementById('whatsapp-confirm-btn').href = "https://wa.me/918074474285?text=" + encodeURIComponent(waMessage);
+
+            document.getElementById('paymentModal').style.display = "block";
+        }
+
+        function closePayment() {
+            document.getElementById('paymentModal').style.display = "none";
+        }
+
+        // బయట క్లిక్ చేస్తే పాప్ అప్ క్లోజ్ అవ్వడానికి
+        window.onclick = function(event) {
+            var modal = document.getElementById('paymentModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
     </script>
 
