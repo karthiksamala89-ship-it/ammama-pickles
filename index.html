@@ -24,7 +24,7 @@
     .qr-box img { max-width: 200px; margin: 10px 0; }
   </style>
 
-  <!-- Firebase SDK Scripts -->
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
@@ -34,7 +34,7 @@
     <h1>🌶️ అమ్మమ్మ పచ్చళ్ళు</h1>
   </header>
 
-  <!-- 1. AUTHENTICATION SECTION (LOGIN / SIGNUP) -->
+  <!-- 1. AUTHENTICATION SECTION -->
   <div id="auth-section" class="container">
     
     <!-- SIGNUP FORM -->
@@ -62,7 +62,7 @@
           <textarea id="signup-address" rows="3" required placeholder="ఇంటి నంబర్, వీధి పేరు"></textarea>
           <button type="button" class="geo-btn" onclick="getLiveLocation()">📍 Use My Live Location (GPS)</button>
         </div>
-        <button type="submit">ఖాతా సృష్టించండి (Register)</button>
+        <button type="submit" id="reg-btn">ఖాతా సృష్టించండి (Register)</button>
       </form>
       <div class="toggle-link" onclick="toggleAuth('login')">ఇప్పటికే ఖాతా ఉందా? లాగిన్ అవ్వండి</div>
     </div>
@@ -86,7 +86,7 @@
 
   </div>
 
-  <!-- 2. MAIN SHOPPING SECTION (Visible after Login) -->
+  <!-- 2. MAIN SHOPPING SECTION -->
   <div id="shop-section" class="container hidden">
     <h2>స్వాగతం, <span id="user-display-name"></span>!</h2>
     <p style="text-align:center; margin-bottom: 15px;">మీకు కావాల్సిన పచ్చడిని ఎంచుకోండి:</p>
@@ -135,7 +135,7 @@
   </div>
 
   <script>
-    // 1. Firebase Configuration (measurementId తీసేయబడింది - 503 ఎర్రర్ ఫిక్స్)
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBFcLXUtPAbkrleJddY6PzGjNOXK3JeSwU",
       authDomain: "ammamma-pachadi.firebaseapp.com",
@@ -152,7 +152,6 @@
 
     let currentUser = null;
 
-    // Toggle between Login & Signup
     function toggleAuth(type) {
       if(type === 'login') {
         document.getElementById('signup-box').classList.add('hidden');
@@ -163,25 +162,26 @@
       }
     }
 
-    // GPS Live Location Fetch
+    // GPS Location (Fixed Syntax Error here)
     function getLiveLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-          document.getElementById('signup-address').value = GPS Location: Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)};
-          alert("మీ లొకేషన్ విజయవంతంగా తీసుకోబడింది!");
+          document.getElementById('signup-address').value = "GPS Location: Lat " + lat.toFixed(4) + ", Lon " + lon.toFixed(4);
+          alert("మీ లొకేషన్ తీసుకోబడింది!");
         }, function(error) {
-          alert("లొకేషన్ యాక్సెస్ అనుమతించండి లేదా మీ అడ్రస్ నేరుగా టైప్ చేయండి.");
+          alert("లొకేషన్ అనుమతించండి లేదా అడ్రస్ డైరెక్ట్‌గా టైప్ చేయండి.");
         });
       } else {
         alert("మీ బ్రౌజర్‌లో GPS సపోర్ట్ లేదు.");
       }
     }
 
-    // Signup Functionality -> Save to Firebase
+    // Signup Functionality
     document.getElementById('signup-form').addEventListener('submit', function(e) {
       e.preventDefault();
+      
       const phone = document.getElementById('signup-phone').value.trim();
       const name = document.getElementById('signup-name').value.trim();
       const password = document.getElementById('signup-password').value.trim();
@@ -189,9 +189,7 @@
       const address = document.getElementById('signup-address').value.trim();
 
       const userId = 'USR_' + phone;
-
-      // Save user data in Firebase
-      database.ref('users/' + userId).set({
+      const userData = {
         userId: userId,
         fullName: name,
         phoneNumber: phone,
@@ -199,24 +197,29 @@
         pincode: pincode,
         address: address,
         createdAt: new Date().toISOString()
-      }, function(error) {
+      };
+
+      database.ref('users/' + userId).set(userData, function(error) {
         if (error) {
-          alert("రిజిస్ట్రేషన్ విఫలమైంది: " + error.message);
+          alert("రిజిస్ట్రేషన్ ఎర్రర్: " + error.message);
         } else {
-          alert("రిజిస్ట్రేషన్ విజయవంతమైంది! దయచేసి ఇప్పుడు లాగిన్ అవ్వండి.");
-          toggleAuth('login');
+          alert("రిజిస్ట్రేషన్ విజయవంతమైంది!");
+          currentUser = userData;
+          document.getElementById('user-display-name').innerText = userData.fullName;
+          document.getElementById('auth-section').classList.add('hidden');
+          document.getElementById('shop-section').classList.remove('hidden');
         }
       });
     });
 
-    // Login Functionality -> Firebase Fetch & Verify
+    // Login Functionality
     document.getElementById('login-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const phone = document.getElementById('login-phone').value.trim();
       const password = document.getElementById('login-password').value.trim();
       const userId = 'USR_' + phone;
 
-      database.ref('users/' + userId).once('value').then((snapshot) => {
+      database.ref('users/' + userId).once('value').then(function(snapshot) {
         if (snapshot.exists()) {
           const userData = snapshot.val();
           if (userData.password === password) {
@@ -228,38 +231,35 @@
             alert("తప్పు పాస్‌వర్డ్ నమోదైంది!");
           }
         } else {
-          alert("ఈ నంబర్‌తో ఖాతా దొరకలేదు. దయచేసి సైన్-అప్ (Register) అవ్వండి.");
+          alert("ఈ నంబర్‌తో ఖాతా దొరకలేదు. సైన్-అప్ అవ్వండి.");
         }
-      }).catch((error) => {
+      }).catch(function(error) {
         alert("లాగిన్ ఎర్రర్: " + error.message);
       });
     });
 
-    // Calculate Total Price
     function calculateTotal() {
       const item = document.getElementById('item-name').value;
       const qty = parseFloat(document.getElementById('item-qty').value);
       let pricePerKg = 500;
 
-      if(item.includes('మటన్')) pricePerKg = 900;
-      if(item.includes('ఆవకాయ')) pricePerKg = 300;
+      if(item.indexOf('మటన్') !== -1) pricePerKg = 900;
+      if(item.indexOf('ఆవకాయ') !== -1) pricePerKg = 300;
 
       const total = pricePerKg * qty;
       document.getElementById('total-price').value = '₹' + total;
       return total;
     }
 
-    // Generate UPI QR Code
     function generateQR() {
       const totalStr = document.getElementById('total-price').value.replace('₹', '');
-      const upiId = "ammammapachadi@upi"; // మీ UPI ID ఇక్కడ మార్చుకోండి
-      const qrUrl = https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${upiId}&pn=AmmammaPachadi&am=${totalStr}&cu=INR;
+      const upiId = "ammammapachadi@upi";
+      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=" + upiId + "&pn=AmmammaPachadi&am=" + totalStr + "&cu=INR";
       
       document.getElementById('upi-qr-img').src = qrUrl;
       document.getElementById('qr-section').classList.remove('hidden');
     }
 
-    // Confirm Order -> Save to Firebase orders node
     function confirmOrder() {
       if(!currentUser) {
         alert("దయచేసి ముందుగా లాగిన్ అవ్వండి.");
@@ -283,8 +283,8 @@
         orderStatus: "Placed",
         orderDate: new Date().toISOString()
       }, function(error) {
-        if (!error) {
-          alert("మీ ఆర్డర్ విజయవంతంగా నమోదైంది! ధన్యవాదాలు.");
+        if(!error) {
+          alert("మీ ఆర్డర్ విజయవంతంగా నమోదైంది!");
           document.getElementById('qr-section').classList.add('hidden');
         } else {
           alert("ఆర్డర్ చేయడంలో సమస్య వచ్చింది: " + error.message);
@@ -292,7 +292,6 @@
       });
     }
 
-    // Logout
     function logout() {
       currentUser = null;
       document.getElementById('shop-section').classList.add('hidden');
