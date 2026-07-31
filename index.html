@@ -24,7 +24,7 @@
     .qr-box img { max-width: 200px; margin: 10px 0; }
   </style>
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase SDK Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
@@ -93,13 +93,12 @@
 
     <form id="order-form">
       <div class="product-card">
-        <h3>🍗 చికెన్ పచ్చడి (Chicken Pickle)</h3>
-        <p>ధర: ₹500 / Kg</p>
+        <h3>🍗 పచ్చళ్ళ వివరాలు</h3>
       </div>
 
       <div class="form-group">
         <label>పచ్చడి రకం సెలెక్ట్ చేయండి:</label>
-        <select id="item-name">
+        <select id="item-name" onchange="calculateTotal()">
           <option value="చికెన్ పచ్చడి">చికెన్ పచ్చడి - ₹500/Kg</option>
           <option value="మటన్ పచ్చడి">మటన్ పచ్చడి - ₹900/Kg</option>
           <option value="ఆవకాయ పచ్చడి">ఆవకాయ పచ్చడి - ₹300/Kg</option>
@@ -127,7 +126,6 @@
     <div id="qr-section" class="qr-box hidden">
       <h3>UPI QR కోడ్ స్కాన్ చేయండి</h3>
       <p>క్రింది QR కోడ్ స్కాన్ చేసి పేమెంట్ పూర్తి చేయండి:</p>
-      <!-- Dynamic Google Pay / PhonePe UPI QR Code -->
       <img id="upi-qr-img" src="" alt="UPI QR Code">
       <br>
       <button onclick="confirmOrder()" style="background-color: #2e7d32; margin-top: 10px;">పేమెంట్ పూర్తయింది - ఆర్డర్ కన్ఫర్మ్ చేయి</button>
@@ -137,7 +135,7 @@
   </div>
 
   <script>
-    // 1. Firebase Configuration (మీరు పంపించిన వివరాలు)
+    // 1. Firebase Configuration (measurementId తీసేయబడింది - 503 ఎర్రర్ ఫిక్స్)
     const firebaseConfig = {
       apiKey: "AIzaSyBFcLXUtPAbkrleJddY6PzGjNOXK3JeSwU",
       authDomain: "ammamma-pachadi.firebaseapp.com",
@@ -145,8 +143,7 @@
       projectId: "ammamma-pachadi",
       storageBucket: "ammamma-pachadi.firebasestorage.app",
       messagingSenderId: "139339162344",
-      appId: "1:139339162344:web:b0b2f1cc23684973169f5d",
-      measurementId: "G-ZBK32VL8NW"
+      appId: "1:139339162344:web:b0b2f1cc23684973169f5d"
     };
 
     // Initialize Firebase
@@ -182,18 +179,18 @@
       }
     }
 
-    // Signup Functionality -> Firebase Save
+    // Signup Functionality -> Save to Firebase
     document.getElementById('signup-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const phone = document.getElementById('signup-phone').value;
-      const name = document.getElementById('signup-name').value;
-      const password = document.getElementById('signup-password').value;
-      const pincode = document.getElementById('signup-pincode').value;
-      const address = document.getElementById('signup-address').value;
+      const phone = document.getElementById('signup-phone').value.trim();
+      const name = document.getElementById('signup-name').value.trim();
+      const password = document.getElementById('signup-password').value.trim();
+      const pincode = document.getElementById('signup-pincode').value.trim();
+      const address = document.getElementById('signup-address').value.trim();
 
       const userId = 'USR_' + phone;
 
-      // Save user to Firebase Realtime Database
+      // Save user data in Firebase
       database.ref('users/' + userId).set({
         userId: userId,
         fullName: name,
@@ -206,7 +203,7 @@
         if (error) {
           alert("రిజిస్ట్రేషన్ విఫలమైంది: " + error.message);
         } else {
-          alert("రిజిస్ట్రేషన్ విజయవంతమైంది! దయచేసి లాగిన్ అవ్వండి.");
+          alert("రిజిస్ట్రేషన్ విజయవంతమైంది! దయచేసి ఇప్పుడు లాగిన్ అవ్వండి.");
           toggleAuth('login');
         }
       });
@@ -215,8 +212,8 @@
     // Login Functionality -> Firebase Fetch & Verify
     document.getElementById('login-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      const phone = document.getElementById('login-phone').value;
-      const password = document.getElementById('login-password').value;
+      const phone = document.getElementById('login-phone').value.trim();
+      const password = document.getElementById('login-password').value.trim();
       const userId = 'USR_' + phone;
 
       database.ref('users/' + userId).once('value').then((snapshot) => {
@@ -231,8 +228,10 @@
             alert("తప్పు పాస్‌వర్డ్ నమోదైంది!");
           }
         } else {
-          alert("ఈ నంబర్‌తో ఖాతా దొరకలేదు. దయచేసి సైన్-అప్ అవ్వండి.");
+          alert("ఈ నంబర్‌తో ఖాతా దొరకలేదు. దయచేసి సైన్-అప్ (Register) అవ్వండి.");
         }
+      }).catch((error) => {
+        alert("లాగిన్ ఎర్రర్: " + error.message);
       });
     });
 
@@ -262,6 +261,10 @@
 
     // Confirm Order -> Save to Firebase orders node
     function confirmOrder() {
+      if(!currentUser) {
+        alert("దయచేసి ముందుగా లాగిన్ అవ్వండి.");
+        return;
+      }
       const orderId = 'ORD_' + Date.now();
       const item = document.getElementById('item-name').value;
       const qty = document.getElementById('item-qty').value;
