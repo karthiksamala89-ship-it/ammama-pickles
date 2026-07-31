@@ -27,4 +27,182 @@
             margin-bottom: 5px;
         }
         header p {
-     …
+            font-size: 16px;
+            color: #ffeb3b;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            background: white;
+            border: 2px solid #ffe0b2;
+            border-radius: 12px;
+            width: 300px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .card h3 {
+            color: #b30000;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .select-qty {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .price-display {
+            font-size: 20px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .btn-whatsapp {
+            display: block;
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .btn-whatsapp:hover {
+            background-color: #1ebc57;
+        }
+        .payment-info {
+            background: #fff3cd;
+            border: 2px solid #ffeeba;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .payment-info h2 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .phone-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #b30000;
+            margin: 10px 0;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>👵 అమ్మమ్మ పచ్చళ్ళు</h1>
+        <p>100% హోమ్ మేడ్ & సంప్రదాయ రుచికరమైన నాన్-వెజ్ పచ్చళ్ళు</p>
+    </header>
+
+    <div class="container">
+        <h2 style="text-align: center; color: #b30000;">మా పచ్చళ్ళ రకాలు & ఆర్డర్ చేయండి</h2>
+        
+        <div class="products">
+            <!-- చికెన్ పచ్చడి -->
+            <div class="card">
+                <h3>🐔 చికెన్ పచ్చడి</h3>
+                <label for="chicken-qty">పరిమాణం ఎంచుకోండి:</label>
+                <select id="chicken-qty" class="select-qty" onchange="updatePrice('chicken')">
+                    <option value="125">1/4 Kg (250g) - ₹125</option>
+                    <option value="250">1/2 Kg (500g) - ₹250</option>
+                    <option value="500" selected>1 Kg - ₹500</option>
+                    <option value="2500">5 Kg - ₹2,500</option>
+                </select>
+                <div class="price-display">ధర: ₹<span id="chicken-price">500</span></div>
+                <a id="chicken-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg చికెన్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+            </div>
+
+            <!-- మటన్ పచ్చడి -->
+            <div class="card">
+                <h3>🐐 మటన్ పచ్చడి</h3>
+                <label for="mutton-qty">పరిమాణం ఎంచుకోండి:</label>
+                <select id="mutton-qty" class="select-qty" onchange="updatePrice('mutton')">
+                    <option value="125">1/4 Kg (250g) - ₹125</option>
+                    <option value="250">1/2 Kg (500g) - ₹250</option>
+                    <option value="500" selected>1 Kg - ₹500</option>
+                    <option value="2500">5 Kg - ₹2,500</option>
+                </select>
+                <div class="price-display">ధర: ₹<span id="mutton-price">500</span></div>
+                <a id="mutton-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg మటన్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+            </div>
+
+            <!-- ఫిష్ పచ్చడి -->
+            <div class="card">
+                <h3>🐟 ఫిష్ (చేప) పచ్చడి</h3>
+                <label for="fish-qty">పరిమాణం ఎంచుకోండి:</label>
+                <select id="fish-qty" class="select-qty" onchange="updatePrice('fish')">
+                    <option value="125">1/4 Kg (250g) - ₹125</option>
+                    <option value="250">1/2 Kg (500g) - ₹250</option>
+                    <option value="500" selected>1 Kg - ₹500</option>
+                    <option value="2500">5 Kg - ₹2,500</option>
+                </select>
+                <div class="price-display">ధర: ₹<span id="fish-price">500</span></div>
+                <a id="fish-btn" href="https://wa.me/918074474285?text=హలో, నేను 1 Kg ఫిష్ పచ్చడి (₹500) ఆర్డర్ చేయాలనుకుంటున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో ఆర్డర్ చేయండి</a>
+            </div>
+        </div>
+
+        <!-- పేమెంట్ మరియు కాంటాక్ట్ సమాచారం -->
+        <div class="payment-info">
+            <h2>ఆర్డర్ & పేమెంట్ వివరాలు</h2>
+            <p>ఏదైనా సమాచారం లేదా ఇంక్వైరీస్ కోసం ఈ క్రింది నంబరుకు సంప్రదించండి:</p>
+            <div class="phone-number">📞 8074474285</div>
+            
+            <hr style="margin: 15px 0;">
+            
+            <p><b>PhonePe లేదా Google Pay పేమెంట్ నంబర్:</b></p>
+            <div class="phone-number">📱 8074474285</div>
+            <p style="color: #d9534f; font-weight: bold; margin-top: 10px;">
+                ⚠️ గమనిక: డబ్బులు పంపిన తర్వాత స్క్రీన్‌షాట్ తీసి క్రింది బటన్ నొక్కి WhatsApp కి పంపండి.
+            </p>
+            <br>
+            <a href="https://wa.me/918074474285?text=హలో, నేను అమ్మమ్మ పచ్చళ్ళు కోసం పేమెంట్ చేశాను. స్క్రీన్‌షాట్ ఇక్కడ పంపుతున్నాను." class="btn-whatsapp" target="_blank">WhatsApp లో స్క్రీన్‌షాట్ పంపండి</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 అమ్మమ్మ పచ్చళ్ళు (Ammamma Pickles). All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function updatePrice(item) {
+            var select = document.getElementById(item + '-qty');
+            var priceDisplay = document.getElementById(item + '-price');
+            var btn = document.getElementById(item + '-btn');
+            
+            var price = select.value;
+            var text = select.options[select.selectedIndex].text;
+            var qtyText = text.split('-')[0].trim();
+            
+            priceDisplay.innerText = price;
+            
+            var itemName = item === 'chicken' ? 'చికెన్ పచ్చడి' : (item === 'mutton' ? 'మటన్ పచ్చడి' : 'ఫిష్ పచ్చడి');
+            
+            btn.href = "https://wa.me/918074474285?text=" + encodeURIComponent("హలో, నేను " + qtyText + " " + itemName + " (₹" + price + ") ఆర్డర్ చేయాలనుకుంటున్నాను.");
+        }
+    </script>
+
+</body>
+</html>
