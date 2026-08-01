@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>అమ్మమ్మ పచ్చళ్ళు - అడ్మిన్ ప్యానెల్</title>
+  <title>అమ్మమ్మ పచ్చళ్ళు - Admin Dashboard</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
     body { background-color: #f4f6f9; color: #333; }
     header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; }
-    .container { max-width: 950px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { color: #b71c1c; margin-bottom: 20px; text-align: center; }
+    .container { max-width: 1000px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2, h3 { color: #b71c1c; margin-bottom: 15px; }
+    h2 { text-align: center; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
-    button { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    button { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    button:hover { background-color: #880e4f; }
     .hidden { display: none; }
     
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
@@ -28,7 +30,7 @@
     .empty-msg { text-align: center; padding: 15px; color: #777; font-style: italic; }
   </style>
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase Compatibility Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
@@ -44,11 +46,11 @@
     <form id="admin-login-form">
       <div class="form-group">
         <label>అడ్మిన్ ఐడీ (Phone):</label>
-        <input type="text" id="admin-id" placeholder="అడ్మిన్ ఐడీ" required>
+        <input type="text" id="admin-id" placeholder="అడ్మిన్ ఐడీ (9999999999)" required>
       </div>
       <div class="form-group">
         <label>పాస్‌వర్డ్:</label>
-        <input type="password" id="admin-pass" placeholder="పాస్‌వర్డ్" required>
+        <input type="password" id="admin-pass" placeholder="పాస్‌వర్డ్ (admin123)" required>
       </div>
       <button type="submit">లాగిన్ అవ్వండి</button>
     </form>
@@ -58,15 +60,20 @@
   <div id="dashboard-section" class="container hidden">
     <h2>కస్టమర్ల & ఆర్డర్‌ల వివరాలు</h2>
 
+    <!-- STATS CARDS -->
     <div class="stats-grid">
       <div class="card">
         <p>మొత్తం రిజిస్టర్డ్ కస్టమర్లు</p>
         <h3 id="total-users">0</h3>
       </div>
+      <div class="card">
+        <p>మొత్తం ఆర్డర్‌లు (Orders)</p>
+        <h3 id="total-orders">0</h3>
+      </div>
     </div>
 
     <!-- USERS TABLE -->
-    <h3>👥 రిజిస్టర్ అయిన కస్టమర్లు (Users)</h3>
+    <h3>👥 రిజిస్టర్ అయిన కస్టమర్లు (Registered Users)</h3>
     <div class="table-responsive">
       <table>
         <thead>
@@ -75,11 +82,32 @@
             <th>ఫోన్ నంబర్</th>
             <th>లొకేషన్ / అడ్రస్</th>
             <th>పిన్‌కోడ్</th>
-            <th>రిజిస్ట్రేషన్ తేదీ</th>
+            <th>తేదీ</th>
           </tr>
         </thead>
         <tbody id="users-table-body">
           <tr><td colspan="5" class="empty-msg">డేటా లోడ్ అవుతోంది...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ORDERS TABLE -->
+    <h3>📦 వచ్చిన ఆర్డర్‌ల వివరాలు (Orders List)</h3>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ఆర్డర్ ID</th>
+            <th>కస్టమర్ పేరు</th>
+            <th>ఫోన్ నంబర్</th>
+            <th>ఐటమ్ వివరాలు</th>
+            <th>మొత్తం ధర (₹)</th>
+            <th>అడ్రస్</th>
+            <th>తేదీ</th>
+          </tr>
+        </thead>
+        <tbody id="orders-table-body">
+          <tr><td colspan="7" class="empty-msg">డేటా లోడ్ అవుతోంది...</td></tr>
         </tbody>
       </table>
     </div>
@@ -114,11 +142,12 @@
         document.getElementById('dashboard-section').classList.remove('hidden');
         loadDashboardData();
       } else {
-        alert("తప్పు వివరాలు నమోదయ్యాయి!");
+        alert("తప్పు వివరాలు నమోదయ్యాయి! (Default ID: 9999999999 / Pass: admin123)");
       }
     });
 
     function loadDashboardData() {
+      // 1. Fetch Registered Users
       database.ref('users').on('value', function(snapshot) {
         const usersTable = document.getElementById('users-table-body');
         usersTable.innerHTML = '';
@@ -129,10 +158,10 @@
             userCount++;
             const user = childSnapshot.val();
 
-            const name = user.fullName || 'N/A';
-            const phone = user.phoneNumber || childSnapshot.key || 'N/A';
+            const name = user.fullName || user.name || 'N/A';
+            const phone = user.phoneNumber || user.phone || childSnapshot.key || 'N/A';
             const address = user.address || 'N/A';
-            const pincode = user.pincode || 'N/A';
+            const pincode = user.pincode || user.pin || 'N/A';
             const date = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
 
             const row = `<tr>
@@ -145,9 +174,49 @@
             usersTable.innerHTML += row;
           });
         } else {
-          usersTable.innerHTML = '<tr><td colspan="5" class="empty-msg">ఇంకా ఏ యూజర్లు రిజిస్టర్ అవ్వలేదు.</td></tr>';
+          usersTable.innerHTML = '<tr><td colspan="5" class="empty-msg">ఇంకా ఏ యూజర్లు రిజిస్టర్ అవ్వలేదు (డేటాబేస్ ఖాళీగా ఉంది).</td></tr>';
         }
         document.getElementById('total-users').innerText = userCount;
+      }, function(error) {
+        alert("Users Data Fetch Error: " + error.message);
+      });
+
+      // 2. Fetch Orders
+      database.ref('orders').on('value', function(snapshot) {
+        const ordersTable = document.getElementById('orders-table-body');
+        ordersTable.innerHTML = '';
+        let orderCount = 0;
+
+        if (snapshot.exists()) {
+          snapshot.forEach(function(childSnapshot) {
+            orderCount++;
+            const order = childSnapshot.val();
+
+            const orderId = order.orderId || childSnapshot.key;
+            const customerName = order.customerName || order.name || 'N/A';
+            const phone = order.customerPhone || order.phone || 'N/A';
+            const item = order.item || order.product || 'N/A';
+            const amount = order.totalAmount || order.price || 'N/A';
+            const address = (order.deliveryAddress || order.address || 'N/A') + (order.pincode ? (' - ' + order.pincode) : '');
+            const date = order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A';
+
+            const row = `<tr>
+              <td><small>${orderId}</small></td>
+              <td><b>${customerName}</b></td>
+              <td>${phone}</td>
+              <td>${item}</td>
+              <td style="color:#b71c1c; font-weight:bold;">₹${amount}</td>
+              <td>${address}</td>
+              <td>${date}</td>
+            </tr>`;
+            ordersTable.innerHTML += row;
+          });
+        } else {
+          ordersTable.innerHTML = '<tr><td colspan="7" class="empty-msg">ఇంకా ఏ ఆర్డర్‌లు నమోదు అవ్వలేదు.</td></tr>';
+        }
+        document.getElementById('total-orders').innerText = orderCount;
+      }, function(error) {
+        alert("Orders Data Fetch Error: " + error.message);
       });
     }
 
