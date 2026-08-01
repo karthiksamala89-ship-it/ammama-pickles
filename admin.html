@@ -1,1 +1,210 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>అమ్మమ్మ పచ్చళ్ళు - అడ్మిన్ ప్యానెల్</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f4f6f9; color: #333; }
+    header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { color: #b71c1c; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    button { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #880e4f; }
+    .hidden { display: none; }
+    
+    /* Stats Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    .card { background: #ffebee; border-left: 5px solid #b71c1c; padding: 15px; border-radius: 8px; text-align: center; }
+    .card h3 { font-size: 28px; color: #b71c1c; margin-top: 5px; }
 
+    /* Tables */
+    .table-responsive { overflow-x: auto; margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: #b71c1c; color: white; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; background: #2e7d32; }
+  </style>
+
+  <!-- Firebase Compatibility Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>🌶️ అమ్మమ్మ పచ్చళ్ళు - Admin Dashboard</h1>
+  </header>
+
+  <!-- ADMIN LOGIN SECTION -->
+  <div id="login-section" class="container">
+    <h2>అడ్మిన్ లాగిన్ (Admin Access)</h2>
+    <form id="admin-login-form">
+      <div class="form-group">
+        <label>అడ్మిన్ ఐడీ (Phone):</label>
+        <input type="text" id="admin-id" placeholder="అడ్మిన్ ఐడీ ఎంటర్ చేయండి" required>
+      </div>
+      <div class="form-group">
+        <label>పాస్‌వర్డ్:</label>
+        <input type="password" id="admin-pass" placeholder="పాస్‌వర్డ్ ఎంటర్ చేయండి" required>
+      </div>
+      <button type="submit">లాగిన్ అవ్వండి</button>
+    </form>
+  </div>
+
+  <!-- ADMIN DASHBOARD SECTION -->
+  <div id="dashboard-section" class="container hidden">
+    <h2>ఆర్డర్‌లు & కస్టమర్ల వివరాలు</h2>
+
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      <div class="card">
+        <p>మొత్తం యూజర్లు (Users)</p>
+        <h3 id="total-users">0</h3>
+      </div>
+      <div class="card">
+        <p>మొత్తం ఆర్డర్‌లు (Orders)</p>
+        <h3 id="total-orders">0</h3>
+      </div>
+    </div>
+
+    <!-- ORDERS TABLE -->
+    <h3>📦 వచ్చిన ఆర్డర్‌ల వివరాలు</h3>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ఆర్డర్ ID</th>
+            <th>కస్టమర్ పేరు</th>
+            <th>ఫోన్ నంబర్</th>
+            <th>ఐటమ్ & పరిమాణం</th>
+            <th>మొత్తం బిల్లు</th>
+            <th>అడ్రస్</th>
+            <th>తేదీ</th>
+          </tr>
+        </thead>
+        <tbody id="orders-table-body">
+          <!-- Dynamic Data -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- USERS TABLE -->
+    <h3>👥 రిజిస్టర్ అయిన కస్టమర్లు</h3>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>పేరు</th>
+            <th>ఫోన్ నంబర్</th>
+            <th>పిన్‌కోడ్</th>
+            <th>అడ్రస్</th>
+            <th>రిజిస్ట్రేషన్ తేదీ</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+          <!-- Dynamic Data -->
+        </tbody>
+      </table>
+    </div>
+
+    <button onclick="logout()" style="background-color: #757575;">లాగౌట్ (Logout)</button>
+  </div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBFcLXUtPAbkrleJddY6PzGjNOXK3JeSwU",
+      authDomain: "ammamma-pachadi.firebaseapp.com",
+      databaseURL: "https://ammamma-pachadi-default-rtdb.firebaseio.com",
+      projectId: "ammamma-pachadi",
+      storageBucket: "ammamma-pachadi.firebasestorage.app",
+      messagingSenderId: "139339162344",
+      appId: "1:139339162344:web:b0b2f1cc23684973169f5d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Default Admin Credentials (మీరు ఇక్కడ మార్చుకోవచ్చు)
+    const ADMIN_USER = "9999999999";
+    const ADMIN_PASS = "admin123";
+
+    // Admin Login
+    document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const user = document.getElementById('admin-id').value.trim();
+      const pass = document.getElementById('admin-pass').value.trim();
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.remove('hidden');
+        loadDashboardData();
+      } else {
+        alert("తప్పు వివరాలు నమోదయ్యాయి! (Default: 9999999999 / admin123)");
+      }
+    });
+
+    // Fetch Data from Firebase
+    function loadDashboardData() {
+      // 1. Fetch Users
+      database.ref('users').on('value', function(snapshot) {
+        const usersTable = document.getElementById('users-table-body');
+        usersTable.innerHTML = '';
+        let userCount = 0;
+
+        if (snapshot.exists()) {
+          snapshot.forEach(function(childSnapshot) {
+            userCount++;
+            const user = childSnapshot.val();
+            const row = `<tr>
+              <td><b>${user.fullName || 'N/A'}</b></td>
+              <td>${user.phoneNumber || 'N/A'}</td>
+              <td>${user.pincode || 'N/A'}</td>
+              <td>${user.address || 'N/A'}</td>
+              <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+            </tr>`;
+            usersTable.innerHTML += row;
+          });
+        }
+        document.getElementById('total-users').innerText = userCount;
+      });
+
+      // 2. Fetch Orders
+      database.ref('orders').on('value', function(snapshot) {
+        const ordersTable = document.getElementById('orders-table-body');
+        ordersTable.innerHTML = '';
+        let orderCount = 0;
+
+        if (snapshot.exists()) {
+          snapshot.forEach(function(childSnapshot) {
+            orderCount++;
+            const order = childSnapshot.val();
+            const row = `<tr>
+              <td><small>${order.orderId}</small></td>
+              <td><b>${order.customerName}</b></td>
+              <td>${order.customerPhone}</td>
+              <td>${order.item} (${order.quantity} Kg)</td>
+              <td style="color:#b71c1c; font-weight:bold;">${order.totalAmount}</td>
+              <td>${order.deliveryAddress} - ${order.pincode}</td>
+              <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+            </tr>`;
+            ordersTable.innerHTML += row;
+          });
+        }
+        document.getElementById('total-orders').innerText = orderCount;
+      });
+    }
+
+    function logout() {
+      document.getElementById('dashboard-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
