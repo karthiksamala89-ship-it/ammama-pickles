@@ -7,22 +7,19 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
     body { background-color: #f4f6f9; color: #333; }
-    header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; }
+    .container { max-width: 950px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     h2 { color: #b71c1c; margin-bottom: 20px; text-align: center; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
     button { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
-    button:hover { background-color: #880e4f; }
     .hidden { display: none; }
     
-    /* Stats Cards */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .card { background: #ffebee; border-left: 5px solid #b71c1c; padding: 15px; border-radius: 8px; text-align: center; }
     .card h3 { font-size: 28px; color: #b71c1c; margin-top: 5px; }
 
-    /* Tables */
     .table-responsive { overflow-x: auto; margin-bottom: 30px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
@@ -31,7 +28,7 @@
     .empty-msg { text-align: center; padding: 15px; color: #777; font-style: italic; }
   </style>
 
-  <!-- Firebase Compatibility Scripts -->
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
@@ -47,11 +44,11 @@
     <form id="admin-login-form">
       <div class="form-group">
         <label>అడ్మిన్ ఐడీ (Phone):</label>
-        <input type="text" id="admin-id" placeholder="అడ్మిన్ ఐడీ ఎంటర్ చేయండి" required>
+        <input type="text" id="admin-id" placeholder="అడ్మిన్ ఐడీ" required>
       </div>
       <div class="form-group">
         <label>పాస్‌వర్డ్:</label>
-        <input type="password" id="admin-pass" placeholder="పాస్‌వర్డ్ ఎంటర్ చేయండి" required>
+        <input type="password" id="admin-pass" placeholder="పాస్‌వర్డ్" required>
       </div>
       <button type="submit">లాగిన్ అవ్వండి</button>
     </form>
@@ -59,17 +56,12 @@
 
   <!-- ADMIN DASHBOARD SECTION -->
   <div id="dashboard-section" class="container hidden">
-    <h2>ఆర్డర్‌లు & కస్టమర్ల వివరాలు</h2>
+    <h2>కస్టమర్ల & ఆర్డర్‌ల వివరాలు</h2>
 
-    <!-- STATS CARDS -->
     <div class="stats-grid">
       <div class="card">
-        <p>మొత్తం రిజిస్టర్డ్ కస్టమర్లు (Users)</p>
+        <p>మొత్తం రిజిస్టర్డ్ కస్టమర్లు</p>
         <h3 id="total-users">0</h3>
-      </div>
-      <div class="card">
-        <p>మొత్తం ఆర్డర్‌లు (Orders)</p>
-        <h3 id="total-orders">0</h3>
       </div>
     </div>
 
@@ -81,34 +73,13 @@
           <tr>
             <th>పేరు</th>
             <th>ఫోన్ నంబర్</th>
+            <th>లొకేషన్ / అడ్రస్</th>
             <th>పిన్‌కోడ్</th>
-            <th>అడ్రస్</th>
             <th>రిజిస్ట్రేషన్ తేదీ</th>
           </tr>
         </thead>
         <tbody id="users-table-body">
-          <!-- Dynamic Data -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ORDERS TABLE -->
-    <h3>📦 వచ్చిన ఆర్డర్‌ల వివరాలు</h3>
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>ఆర్డర్ ID</th>
-            <th>కస్టమర్ పేరు</th>
-            <th>ఫోన్ నంబర్</th>
-            <th>ఐటమ్ & పరిమాణం</th>
-            <th>మొత్తం బిల్లు</th>
-            <th>అడ్రస్</th>
-            <th>తేదీ</th>
-          </tr>
-        </thead>
-        <tbody id="orders-table-body">
-          <!-- Dynamic Data -->
+          <tr><td colspan="5" class="empty-msg">డేటా లోడ్ అవుతోంది...</td></tr>
         </tbody>
       </table>
     </div>
@@ -117,7 +88,6 @@
   </div>
 
   <script>
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBFcLXUtPAbkrleJddY6PzGjNOXK3JeSwU",
       authDomain: "ammamma-pachadi.firebaseapp.com",
@@ -131,11 +101,9 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Default Admin Credentials
     const ADMIN_USER = "9999999999";
     const ADMIN_PASS = "admin123";
 
-    // Admin Login
     document.getElementById('admin-login-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const user = document.getElementById('admin-id').value.trim();
@@ -146,13 +114,11 @@
         document.getElementById('dashboard-section').classList.remove('hidden');
         loadDashboardData();
       } else {
-        alert("తప్పు వివరాలు నమోదయ్యాయి! (Default: 9999999999 / admin123)");
+        alert("తప్పు వివరాలు నమోదయ్యాయి!");
       }
     });
 
-    // Fetch Data from Firebase
     function loadDashboardData() {
-      // 1. Fetch Registered Users
       database.ref('users').on('value', function(snapshot) {
         const usersTable = document.getElementById('users-table-body');
         usersTable.innerHTML = '';
@@ -163,18 +129,17 @@
             userCount++;
             const user = childSnapshot.val();
 
-            // Checking all possible keys to ensure data shows up
-            const name = user.fullName || user.name || 'N/A';
-            const phone = user.phoneNumber || user.phone || childSnapshot.key.replace('USR_', '') || 'N/A';
-            const pincode = user.pincode || 'N/A';
+            const name = user.fullName || 'N/A';
+            const phone = user.phoneNumber || childSnapshot.key || 'N/A';
             const address = user.address || 'N/A';
+            const pincode = user.pincode || 'N/A';
             const date = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
 
             const row = `<tr>
               <td><b>${name}</b></td>
               <td>${phone}</td>
-              <td>${pincode}</td>
               <td>${address}</td>
+              <td>${pincode}</td>
               <td>${date}</td>
             </tr>`;
             usersTable.innerHTML += row;
@@ -183,33 +148,6 @@
           usersTable.innerHTML = '<tr><td colspan="5" class="empty-msg">ఇంకా ఏ యూజర్లు రిజిస్టర్ అవ్వలేదు.</td></tr>';
         }
         document.getElementById('total-users').innerText = userCount;
-      });
-
-      // 2. Fetch Orders
-      database.ref('orders').on('value', function(snapshot) {
-        const ordersTable = document.getElementById('orders-table-body');
-        ordersTable.innerHTML = '';
-        let orderCount = 0;
-
-        if (snapshot.exists()) {
-          snapshot.forEach(function(childSnapshot) {
-            orderCount++;
-            const order = childSnapshot.val();
-            const row = `<tr>
-              <td><small>${order.orderId || childSnapshot.key}</small></td>
-              <td><b>${order.customerName || 'N/A'}</b></td>
-              <td>${order.customerPhone || 'N/A'}</td>
-              <td>${order.item || 'N/A'} (${order.quantity || 1} Kg)</td>
-              <td style="color:#b71c1c; font-weight:bold;">${order.totalAmount || 'N/A'}</td>
-              <td>${order.deliveryAddress || 'N/A'} - ${order.pincode || ''}</td>
-              <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}</td>
-            </tr>`;
-            ordersTable.innerHTML += row;
-          });
-        } else {
-          ordersTable.innerHTML = '<tr><td colspan="7" class="empty-msg">ఇంకా ఏ ఆర్డర్‌లు రాలేదు.</td></tr>';
-        }
-        document.getElementById('total-orders').innerText = orderCount;
       });
     }
 
