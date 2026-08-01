@@ -28,7 +28,7 @@
     th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
     th { background-color: #b71c1c; color: white; }
     tr:nth-child(even) { background-color: #f9f9f9; }
-    .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; background: #2e7d32; }
+    .empty-msg { text-align: center; padding: 15px; color: #777; font-style: italic; }
   </style>
 
   <!-- Firebase Compatibility Scripts -->
@@ -64,13 +64,32 @@
     <!-- STATS CARDS -->
     <div class="stats-grid">
       <div class="card">
-        <p>మొత్తం యూజర్లు (Users)</p>
+        <p>మొత్తం రిజిస్టర్డ్ కస్టమర్లు (Users)</p>
         <h3 id="total-users">0</h3>
       </div>
       <div class="card">
         <p>మొత్తం ఆర్డర్‌లు (Orders)</p>
         <h3 id="total-orders">0</h3>
       </div>
+    </div>
+
+    <!-- USERS TABLE -->
+    <h3>👥 రిజిస్టర్ అయిన కస్టమర్లు (Users)</h3>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>పేరు</th>
+            <th>ఫోన్ నంబర్</th>
+            <th>పిన్‌కోడ్</th>
+            <th>అడ్రస్</th>
+            <th>రిజిస్ట్రేషన్ తేదీ</th>
+          </tr>
+        </thead>
+        <tbody id="users-table-body">
+          <!-- Dynamic Data -->
+        </tbody>
+      </table>
     </div>
 
     <!-- ORDERS TABLE -->
@@ -94,25 +113,6 @@
       </table>
     </div>
 
-    <!-- USERS TABLE -->
-    <h3>👥 రిజిస్టర్ అయిన కస్టమర్లు</h3>
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>పేరు</th>
-            <th>ఫోన్ నంబర్</th>
-            <th>పిన్‌కోడ్</th>
-            <th>అడ్రస్</th>
-            <th>రిజిస్ట్రేషన్ తేదీ</th>
-          </tr>
-        </thead>
-        <tbody id="users-table-body">
-          <!-- Dynamic Data -->
-        </tbody>
-      </table>
-    </div>
-
     <button onclick="logout()" style="background-color: #757575;">లాగౌట్ (Logout)</button>
   </div>
 
@@ -131,7 +131,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Default Admin Credentials (మీరు ఇక్కడ మార్చుకోవచ్చు)
+    // Default Admin Credentials
     const ADMIN_USER = "9999999999";
     const ADMIN_PASS = "admin123";
 
@@ -152,7 +152,7 @@
 
     // Fetch Data from Firebase
     function loadDashboardData() {
-      // 1. Fetch Users
+      // 1. Fetch Registered Users
       database.ref('users').on('value', function(snapshot) {
         const usersTable = document.getElementById('users-table-body');
         usersTable.innerHTML = '';
@@ -162,15 +162,25 @@
           snapshot.forEach(function(childSnapshot) {
             userCount++;
             const user = childSnapshot.val();
+
+            // Checking all possible keys to ensure data shows up
+            const name = user.fullName || user.name || 'N/A';
+            const phone = user.phoneNumber || user.phone || childSnapshot.key.replace('USR_', '') || 'N/A';
+            const pincode = user.pincode || 'N/A';
+            const address = user.address || 'N/A';
+            const date = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+
             const row = `<tr>
-              <td><b>${user.fullName || 'N/A'}</b></td>
-              <td>${user.phoneNumber || 'N/A'}</td>
-              <td>${user.pincode || 'N/A'}</td>
-              <td>${user.address || 'N/A'}</td>
-              <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+              <td><b>${name}</b></td>
+              <td>${phone}</td>
+              <td>${pincode}</td>
+              <td>${address}</td>
+              <td>${date}</td>
             </tr>`;
             usersTable.innerHTML += row;
           });
+        } else {
+          usersTable.innerHTML = '<tr><td colspan="5" class="empty-msg">ఇంకా ఏ యూజర్లు రిజిస్టర్ అవ్వలేదు.</td></tr>';
         }
         document.getElementById('total-users').innerText = userCount;
       });
@@ -186,16 +196,18 @@
             orderCount++;
             const order = childSnapshot.val();
             const row = `<tr>
-              <td><small>${order.orderId}</small></td>
-              <td><b>${order.customerName}</b></td>
-              <td>${order.customerPhone}</td>
-              <td>${order.item} (${order.quantity} Kg)</td>
-              <td style="color:#b71c1c; font-weight:bold;">${order.totalAmount}</td>
-              <td>${order.deliveryAddress} - ${order.pincode}</td>
-              <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+              <td><small>${order.orderId || childSnapshot.key}</small></td>
+              <td><b>${order.customerName || 'N/A'}</b></td>
+              <td>${order.customerPhone || 'N/A'}</td>
+              <td>${order.item || 'N/A'} (${order.quantity || 1} Kg)</td>
+              <td style="color:#b71c1c; font-weight:bold;">${order.totalAmount || 'N/A'}</td>
+              <td>${order.deliveryAddress || 'N/A'} - ${order.pincode || ''}</td>
+              <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}</td>
             </tr>`;
             ordersTable.innerHTML += row;
           });
+        } else {
+          ordersTable.innerHTML = '<tr><td colspan="7" class="empty-msg">ఇంకా ఏ ఆర్డర్‌లు రాలేదు.</td></tr>';
         }
         document.getElementById('total-orders').innerText = orderCount;
       });
