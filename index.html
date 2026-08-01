@@ -8,42 +8,41 @@
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
     body { background-color: #f8f9fa; color: #333; }
     
-    /* Header & Navigation */
     header { background-color: #b71c1c; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     header h1 { font-size: 24px; margin-bottom: 5px; }
     header p { font-size: 14px; opacity: 0.9; }
 
     .container { max-width: 900px; margin: 20px auto; padding: 15px; }
 
-    /* Card Box */
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .card h2 { color: #b71c1c; margin-bottom: 15px; border-bottom: 2px solid #ffebee; padding-bottom: 8px; font-size: 18px; }
+    .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .card h2 { color: #b71c1c; margin-bottom: 15px; border-bottom: 2px solid #ffebee; padding-bottom: 8px; font-size: 18px; text-align: center; }
 
-    /* Form Inputs */
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
     input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
     
-    /* Buttons */
-    .btn { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .btn { width: 100%; padding: 12px; background-color: #b71c1c; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
     .btn:hover { background-color: #880e4f; }
-    .btn-pay { background-color: #5f259f; text-decoration: none; display: inline-block; text-align: center; margin-top: 10px; }
+    .btn-pay { background-color: #5f259f; text-decoration: none; display: inline-block; text-align: center; }
     .btn-pay:hover { background-color: #4a148c; }
 
-    /* Product Grid */
+    .toggle-link { text-align: center; margin-top: 15px; font-size: 14px; }
+    .toggle-link a { color: #b71c1c; font-weight: bold; text-decoration: none; cursor: pointer; }
+
     .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
     .product-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; background: #fff; }
     .product-card h3 { font-size: 16px; color: #b71c1c; margin-bottom: 10px; }
     .price-tag { font-size: 18px; font-weight: bold; color: #2e7d32; margin: 10px 0; }
 
-    /* QR Section */
     .qr-container { text-align: center; margin-top: 15px; padding: 15px; background: #fff3e0; border-radius: 8px; border: 1px dashed #ef6c00; }
     .qr-container img { width: 180px; height: 180px; margin: 10px 0; border: 2px solid #fff; border-radius: 8px; }
+
+    .user-bar { display: flex; justify-content: space-between; align-items: center; background: #ffebee; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; }
 
     .hidden { display: none; }
   </style>
 
-  <!-- Firebase Compatibility SDKs -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
@@ -56,43 +55,70 @@
 
   <div class="container">
 
-    <!-- STEP 1: USER REGISTRATION / LOGIN -->
-    <div id="user-auth-section" class="card">
-      <h2>1. కస్టమర్ రిజిస్ట్రేషన్ (Customer Details)</h2>
+    <!-- 1. AUTH SECTION: CREATE ACCOUNT FORM -->
+    <div id="register-section" class="card">
+      <h2>కొత్త అకౌంట్ క్రియేట్ చేయండి (Create Account)</h2>
       <form id="register-form">
         <div class="form-group">
           <label>పూర్తి పేరు (Full Name):</label>
-          <input type="text" id="user-name" placeholder="మీ పేరు టైప్ చేయండి" required>
+          <input type="text" id="reg-name" placeholder="మీ పేరు టైప్ చేయండి" required>
         </div>
         <div class="form-group">
           <label>ఫోన్ నంబర్ (10 అంకెలు):</label>
-          <input type="tel" id="user-phone" placeholder="10 అంకెల మొబైల్ నంబర్" maxlength="10" required>
+          <input type="tel" id="reg-phone" placeholder="10 అంకెల ఫోన్ నంబర్" maxlength="10" required>
         </div>
         <div class="form-group">
           <label>పాస్‌వర్డ్ (Password):</label>
-          <input type="password" id="user-pass" placeholder="పాస్‌వర్డ్ టైప్ చేయండి" required>
+          <input type="password" id="reg-pass" placeholder="పాస్‌వర్డ్ సెట్ చేసుకోండి" required>
         </div>
         <div class="form-group">
-          <label>డెలివరీ అడ్రస్ (Address):</label>
-          <input type="text" id="user-address" placeholder="ఇంటి నంబర్, ల్యాండ్‌మార్క్, ఊరు పేరు" required>
+          <label>డెలివరీ అడ్రస్ / లొకేషన్:</label>
+          <input type="text" id="reg-address" placeholder="ఇంటి నంబర్, ల్యాండ్‌మార్క్, ఊరు పేరు" required>
         </div>
         <div class="form-group">
           <label>పిన్ కోడ్ (Pincode):</label>
-          <input type="text" id="user-pincode" placeholder="6 అంకెల పిన్ కోడ్" maxlength="6" required>
+          <input type="text" id="reg-pincode" placeholder="6 అంకెల పిన్ కోడ్" maxlength="6" required>
         </div>
-        <button type="submit" class="btn">అకౌంట్ సృష్టించండి / ముందుకు వెళ్ళండి ➔</button>
+        <button type="submit" class="btn">అకౌంట్ క్రియేట్ చేయండి ➔</button>
       </form>
+      <div class="toggle-link">
+        మీకు ఆల్రెడీ అకౌంట్ ఉందా? <a onclick="showLogin()">ఇక్కడ లాగిన్ అవ్వండి (Login)</a>
+      </div>
     </div>
 
-    <!-- STEP 2: PRODUCT SELECTION & ORDERING -->
+    <!-- 2. AUTH SECTION: LOGIN FORM -->
+    <div id="login-section" class="card hidden">
+      <h2>యూజర్ లాగిన్ (Login)</h2>
+      <form id="login-form">
+        <div class="form-group">
+          <label>ఫోన్ నంబర్:</label>
+          <input type="tel" id="login-phone" placeholder="మీ 10 అంకెల ఫోన్ నంబర్" maxlength="10" required>
+        </div>
+        <div class="form-group">
+          <label>పాస్‌వర్డ్:</label>
+          <input type="password" id="login-pass" placeholder="మీ పాస్‌వర్డ్" required>
+        </div>
+        <button type="submit" class="btn">లాగిన్ అవ్వండి ➔</button>
+      </form>
+      <div class="toggle-link">
+        మీకు అకౌంట్ లేదా? <a onclick="showRegister()">కొత్త అకౌంట్ క్రియేట్ చేయండి</a>
+      </div>
+    </div>
+
+    <!-- 3. MAIN DASHBOARD / PRODUCT SELECTION -->
     <div id="order-section" class="card hidden">
-      <h2>2. పచ్చళ్ళు ఎంచుకోండి (Select Pickles)</h2>
+      <div class="user-bar">
+        <span>👋 స్వాగతం, <b id="display-user-name">User</b></span>
+        <button onclick="logout()" style="background:#757575; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">లాగౌట్</button>
+      </div>
+
+      <h2>పచ్చళ్ళు ఎంచుకోండి (Select Pickles)</h2>
       
       <div class="product-grid">
         <!-- Product 1 -->
         <div class="product-card">
           <h3>🐔 చికెన్ పచ్చడి (Chicken Pickle)</h3>
-          <label>పరిమాణం (Quantity):</label>
+          <label>పరిమాణం:</label>
           <select id="chicken-qty" onchange="calculateTotal()">
             <option value="0">ఎంచుకోండి (0)</option>
             <option value="250">250 grams - ₹250</option>
@@ -104,7 +130,7 @@
         <!-- Product 2 -->
         <div class="product-card">
           <h3>🥭 ఆవకాయ పచ్చడి (Mango Pickle)</h3>
-          <label>పరిమాణం (Quantity):</label>
+          <label>పరిమాణం:</label>
           <select id="mango-qty" onchange="calculateTotal()">
             <option value="0">ఎంచుకోండి (0)</option>
             <option value="250">250 grams - ₹120</option>
@@ -116,7 +142,7 @@
         <!-- Product 3 -->
         <div class="product-card">
           <h3>🐐 మటన్ పచ్చడి (Mutton Pickle)</h3>
-          <label>పరిమాణం (Quantity):</label>
+          <label>పరిమాణం:</label>
           <select id="mutton-qty" onchange="calculateTotal()">
             <option value="0">ఎంచుకోండి (0)</option>
             <option value="250">250 grams - ₹350</option>
@@ -127,14 +153,14 @@
       </div>
 
       <div style="margin-top: 20px; text-align: center;">
-        <h3 style="color: #333;">మొత్తం బిల్లు అమౌంట్: <span id="total-price-display" class="price-tag">₹0</span></h3>
-        <button type="button" onclick="proceedToPayment()" class="btn" style="max-width: 300px; margin-top: 10px;">పేమెంట్ చేయడానికి క్లిక్ చేయండి ➔</button>
+        <h3 style="color: #333;">మొత్తం బిల్లు: <span id="total-price-display" class="price-tag">₹0</span></h3>
+        <button type="button" onclick="proceedToPayment()" class="btn" style="max-width: 300px;">పేమెంట్ చేయడానికి క్లిక్ చేయండి ➔</button>
       </div>
     </div>
 
-    <!-- STEP 3: PAYMENT & QR / DIRECT PHONEPE BUTTON -->
+    <!-- 4. PAYMENT & UPI SECTION -->
     <div id="payment-section" class="card hidden">
-      <h2>3. పేమెంట్ వివరాలు (UPI Payment)</h2>
+      <h2>పేమెంట్ వివరాలు (UPI Payment)</h2>
       <p style="text-align: center;">మీ ఆర్డర్ బిల్లు: <strong id="pay-amount-display" style="color: #b71c1c; font-size: 18px;">₹0</strong></p>
 
       <div class="qr-container">
@@ -151,17 +177,17 @@
 
       <div style="margin-top: 20px;">
         <div class="form-group">
-          <label>పేమెంట్ చేసిన తర్వాత Transaction ID / UTR నంబర్ నమోదు చేయండి:</label>
+          <label>పేమెంట్ చేసిన తర్వాత UTR / Transaction ID నమోదు చేయండి:</label>
           <input type="text" id="utr-number" placeholder="ఉదాహరణ: 3201xxxxxxxx" required>
         </div>
         <button type="button" onclick="confirmFinalOrder()" class="btn">ఆర్డర్ కన్ఫర్మ్ చేయండి (Confirm Order)</button>
+        <button type="button" onclick="backToStore()" class="btn" style="background:#757575;">వెనక్కి వెళ్ళండి (Back)</button>
       </div>
     </div>
 
   </div>
 
   <script>
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBFcLXUtPAbkrleJddY6PzGjNOXK3JeSwU",
       authDomain: "ammamma-pachadi.firebaseapp.com",
@@ -179,26 +205,30 @@
     let grandTotal = 0;
     let orderItemsSummary = "";
 
-    // 1. User Registration Handler
+    function showLogin() {
+      document.getElementById('register-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+    }
+
+    function showRegister() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('register-section').classList.remove('hidden');
+    }
+
+    // Account Creation
     document.getElementById('register-form').addEventListener('submit', function(e) {
       e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-pass').value.trim();
+      const address = document.getElementById('reg-address').value.trim();
+      const pincode = document.getElementById('reg-pincode').value.trim();
 
-      const name = document.getElementById('user-name').value.trim();
-      const phone = document.getElementById('user-phone').value.trim();
-      const password = document.getElementById('user-pass').value.trim();
-      const address = document.getElementById('user-address').value.trim();
-      const pincode = document.getElementById('user-pincode').value.trim();
-
-      // 10-Digit Mobile Validation
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(phone)) {
+      if (!/^[0-9]{10}$/.test(phone)) {
         alert("దయచేసి సరిగ్గా 10 అంకెల ఫోన్ నంబర్ నమోదు చేయండి!");
         return;
       }
 
-      currentCustomer = { name, phone, password, address, pincode };
-
-      // Save User to Firebase
       database.ref('users/' + phone).set({
         fullName: name,
         phoneNumber: phone,
@@ -210,14 +240,41 @@
         if (error) {
           alert("రిజిస్ట్రేషన్ లోపం: " + error.message);
         } else {
-          alert("🎉 ఖాతా విజయవంతంగా నమోదు చేయబడింది!");
-          document.getElementById('user-auth-section').classList.add('hidden');
-          document.getElementById('order-section').classList.remove('hidden');
+          alert("🎉 అకౌంట్ క్రియేట్ అయ్యింది! ఇప్పుడు లాగిన్ అవ్వండి.");
+          showLogin();
         }
       });
     });
 
-    // 2. Price Calculation
+    // Login Process
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const phone = document.getElementById('login-phone').value.trim();
+      const pass = document.getElementById('login-pass').value.trim();
+
+      database.ref('users/' + phone).once('value', function(snapshot) {
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          if (userData.password === pass) {
+            currentCustomer = userData;
+            document.getElementById('display-user-name').innerText = userData.fullName;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('order-section').classList.remove('hidden');
+          } else {
+            alert("తప్పు పాస్‌వర్డ్ కొట్టారు!");
+          }
+        } else {
+          alert("ఈ ఫోన్ నంబర్‌తో అకౌంట్ లేదు. దయచేసి రిజిస్టర్ చేసుకోండి.");
+        }
+      });
+    });
+
+    function logout() {
+      currentCustomer = null;
+      document.getElementById('order-section').classList.add('hidden');
+      document.getElementById('register-section').classList.remove('hidden');
+    }
+
     function calculateTotal() {
       const cQty = parseInt(document.getElementById('chicken-qty').value);
       const mQty = parseInt(document.getElementById('mango-qty').value);
@@ -243,7 +300,6 @@
       document.getElementById('total-price-display').innerText = "₹" + grandTotal;
     }
 
-    // 3. Setup UPI Link & QR Code
     function proceedToPayment() {
       if (grandTotal === 0) {
         alert("దయచేసి కనీసం ఒక పచ్చడిని ఎంచుకోండి!");
@@ -254,25 +310,24 @@
       document.getElementById('payment-section').classList.remove('hidden');
       document.getElementById('pay-amount-display').innerText = "₹" + grandTotal;
 
-      const myUpiId = "8074474285@ybl"; // మీ UPI ID
+      const myUpiId = "8074474285@ybl";
       const payeeName = "Ammamma Pickles";
-      
-      // Standard UPI Deep Linking Format
       const upiUrl = `upi://pay?pa=${myUpiId}&pn=${encodeURIComponent(payeeName)}&am=${grandTotal}&cu=INR`;
 
-      // Set Mobile Direct Payment Button URL
       document.getElementById('direct-upi-btn').href = upiUrl;
-
-      // Generate Dynamic QR Code Image
       const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
       document.getElementById('qr-code-img').src = qrApiUrl;
     }
 
-    // 4. Save Final Order to Firebase
+    function backToStore() {
+      document.getElementById('payment-section').classList.add('hidden');
+      document.getElementById('order-section').classList.remove('hidden');
+    }
+
     function confirmFinalOrder() {
       const utr = document.getElementById('utr-number').value.trim();
       if (!utr) {
-        alert("దయచేసి పేమెంట్ ట్రాన్సాక్షన్ ID/UTR నమోదు చేయండి!");
+        alert("దయచేసి UTR / Transaction ID నమోదు చేయండి!");
         return;
       }
 
@@ -280,8 +335,8 @@
 
       database.ref('orders/' + orderId).set({
         orderId: orderId,
-        customerName: currentCustomer.name,
-        customerPhone: currentCustomer.phone,
+        customerName: currentCustomer.fullName,
+        customerPhone: currentCustomer.phoneNumber,
         deliveryAddress: currentCustomer.address,
         pincode: currentCustomer.pincode,
         item: orderItemsSummary,
